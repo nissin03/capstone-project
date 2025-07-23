@@ -1,6 +1,6 @@
 <template>
-    <div class="font-pops">
-
+    <div class="font-pops min-h-dvh flex flex-col">
+        <Header />
     </div>
 </template>
 
