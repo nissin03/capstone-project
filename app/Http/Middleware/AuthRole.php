@@ -8,24 +8,30 @@ use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 
-class AuthAdmin
+class AuthRole
 {
     /**
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
+
+    /**
+     * @param  array|string  $roles
+     */
+    public function __construct(private array|string $roles = []) {}
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check()) {
+        $user = Auth::user();
+        if (!$user) {
             return redirect()->route('login');
         }
         $user = Auth::user();
 
-        if ($user->utype === 'ADM' || $user->utype === 'DIR') {
-            return $next($request);
+        if (!$user->hasAnyRole($roles)) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Access denied. Proper role required.');
         }
-        return redirect()->route('dashboard')
-            ->with('error', 'Access denied. Admin privileges required.');
+        return $next($request);
     }
 }
