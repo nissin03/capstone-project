@@ -18,3 +18,29 @@ svg {
     display: block;
     max-width: 100%;
 }
+
+@utility flex-items {
+    @apply flex items-center;
+}
+@utility flex-center {
+    @apply flex items-center justify-center;
+}
+
+@utility input-default {
+    @apply rounded-md w-full border-2 text-sm border-stone-300 focus:outline-none caret-green-600 bg-transparent px-3 pt-5 pb-2 text-stone-800 focus:border-stone-600 transition-colors;
+}
+@utility btn-black {
+    @apply cursor-pointer flex w-full justify-center items-center bg-black py-3 text-sm font-semibold leading-6 text-white h-[48px] relative rounded-md;
+}
+
+@utility floating-input {
+    @apply w-full border-2 rounded-md border-stone-300 bg-white px-3 pt-5 pb-2 text-sm text-stone-800 focus:border-stone-600 focus:outline-none;
+}
+
+@utility floating-label {
+    @apply absolute top-3 left-3 bg-white px-1 text-sm text-stone-400 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-stone-400 peer-focus:-top-1 peer-focus:text-xs peer-focus:text-stone-900;
+}
+
+@utility loader {
+    @apply size-5 border-2 border-b-transparent rounded-full inline-block animate-spin;
+}
