@@ -11,10 +11,13 @@ export const menuItems = [
         name: "Categories",
         icon: List,
         children: [
-            { name: "Create Category", href: "#", active: false },
+            {
+                name: "Create Category",
+                href: route("admin.categories.create"),
+            },
             {
                 name: "View Categories",
-                href: route("admin.category"),
+                href: route("admin.categories.index"),
             },
         ],
     },

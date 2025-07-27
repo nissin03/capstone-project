@@ -1,6 +1,6 @@
 <template>
     <div @click="isOpen = !isOpen" class="border-b mb-4 pb-4 mt-2 border-stone-300 relative">
-        <button class="p-0.5 flex items-center gap-2 w-full
+        <button class="p-0.5 flex-items gap-2 w-full
          transition-colors hover:bg-stone-300
          relative rounded cursor-pointer">
             <Link :href="route('admin.dashboard')" class="rounded bg-green-500 shadow">
@@ -13,18 +13,7 @@
             <ChevronsUpDown class="ml-auto shrink-0 size-4 text-stone-500" />
         </button>
         <teleport to="body">
-            <div v-if="isOpen"
-                class="absolute bg-white rounded-md shadow-md z-50 divide-y divide-stone-200 top-10 left-[220px] cursor-pointer">
-                <div class="p-3 flex items-center gap-2 hover:bg-stone-100 transition">
-                    <UserIcon class="size-4 text-stone-500" />
-                    <span class="text-sm font-medium">Account</span>
-                </div>
-
-                <div class="p-3 flex items-center gap-2 hover:bg-stone-100 transition">
-                    <LogOutIcon class="size-4 text-red-500" />
-                    <span class="text-sm font-medium text-red-600">Logout</span>
-                </div>
-            </div>
+            <AccountDropdown :isOpen="isOpen" positionClass="absolute top-10 left-[220px]" />
         </teleport>
     </div>
 
@@ -33,7 +22,8 @@
 <script setup>
 import { ChevronsUpDown, UserIcon, LogOutIcon } from 'lucide-vue-next';
 import { usePage } from '@inertiajs/vue3';
-import { Teleport, ref } from 'vue';
+import { ref } from 'vue';
+import AccountDropdown from '../UI/AccountDropdown.vue';
 
 const user = usePage().props.user;
 const isOpen = ref(false);

@@ -44,6 +44,6 @@ Route::prefix('admin')
     ->middleware(['auth', 'role:admin'])
     ->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        Route::get('category', [CategoryController::class, 'index'])->name('category');
+        Route::resource('categories', CategoryController::class);
         Route::get('product', [ProductController::class, 'index'])->name('product');
     });

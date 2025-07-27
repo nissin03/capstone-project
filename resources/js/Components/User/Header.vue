@@ -7,6 +7,15 @@ import UserDropdown from './UserDropdown.vue';
 import { usePage } from '@inertiajs/vue3';
 import BrandLogo from './BrandLogo.vue';
 
+const page = usePage();
+
+const user = computed(() => page.props.auth.user)
+const roles = computed(() => user.value?.roles || [])
+
+const isAdminOrDir = computed(() => {
+    return roles.value.includes('admin') || roles.value.includes('dir')
+});
+
 const isOpen = ref(false);
 const sidebarRef = ref(null);
 
@@ -46,13 +55,23 @@ const cartCount = ref(10);
                 </span>
                 </Link>
 
-                <div v-if="$page.props.auth.user" class="flex items-center gap-2">
-                    <UserDropdown />
+                <div class="" v-if="user">
+                    <div v-if="isAdminOrDir">
+                        <Link :href="route('admin.dashboard')" class="font-semibold">
+                        <UserDropdown />
+                        </Link>
+                    </div>
+                    <div v-else>
+                        <div v-if="$page.props.auth.user" class="flex items-center gap-2">
+                            <UserDropdown />
+                        </div>
+                    </div>
                 </div>
                 <Link v-else :href="route('login.index')"
                     class="hover:bg-stone-100 rounded p-2 cursor-pointer flex-center space-x-1">
                 <span class="font-semibold">Login</span>
                 </Link>
+
                 <!-- Mobile toggle  -->
                 <div class="md:hidden">
                     <Menu @click="isOpen = !isOpen" />

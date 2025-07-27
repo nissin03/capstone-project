@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { useForm } from '@inertiajs/vue3';
 import CustomCheckbox from '../../Components/User/CustomCheckbox.vue';
 import GoogleLoginBtn from '../../Components/User/GoogleLoginBtn.vue';
@@ -37,8 +37,9 @@ const redirectToGoogle = () => {
                     Forgot Password?
                     </Link>
                 </div>
-
-                <SubmitButton type="submit" :processing="form.processing">Login</SubmitButton>
+                <SubmitButton type="submit" :processing="form.processing" :fullWidth="true">
+                    Login
+                </SubmitButton>
             </div>
         </form>
         <div class="mt-8 text-center text-sm">

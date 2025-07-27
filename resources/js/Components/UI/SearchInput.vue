@@ -8,7 +8,7 @@ defineProps({
     },
     size: {
         type: String,
-        default: 'md', // 'sm', 'md', or 'lg'
+        default: 'md',
     },
 });
 
@@ -28,7 +28,7 @@ const iconClasses = {
 <template>
     <div class="w-full mx-auto max-w-md">
         <form class="relative w-full">
-            <Search class="absolute text-stone-700" :class="iconClasses[size]" />
+            <Search class="absolute text-stone-400" :class="iconClasses[size]" />
             <input type="text" :placeholder="placeholder" class="input-default" :class="inputClasses[size]" />
         </form>
     </div>
