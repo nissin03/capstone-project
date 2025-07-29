@@ -1,11 +1,10 @@
 <script setup>
-import { Edit, Plus, Package, Archive, ChevronLeft } from 'lucide-vue-next'
+import { Package, ArchiveRestore, ChevronLeft } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 
 import BreadCrumbs from '@components/BreadCrumbs.vue'
 import SearchInput from '@components/SearchInput.vue'
-import BaseButton from '@components/BaseButton.vue'
 import EmptyState from '@components/EmptyState.vue'
 import PageHeader from '@components/PageHeader.vue'
 import Modal from '../../../Components/UI/Modal.vue'
@@ -17,15 +16,15 @@ const props = defineProps({
     categories: Object,
 })
 
-const showModal = ref(false)
+const restoreModal = ref(false)
 const expandedRows = ref(new Set())
-const selectedCategoryId = ref(null)
+const selectedRestoreId = ref(null)
 
 const search = ref("")
 
 
 watch(search,
-    debounce((q) => router.get(route('admin.categories.index'), { search: q }, { preserveState: true }), 500))
+    debounce((q) => router.get(route('admin.categories.archive'), { search: q }, { preserveState: true }), 500))
 
 const subtitle = computed(() => {
     return search.value
@@ -40,16 +39,16 @@ function toggleRow(id) {
     }
 }
 
-function confirmDelete(id) {
-    selectedCategoryId.value = id
-    showModal.value = true
+function confirmRestore(id) {
+    selectedRestoreId.value = id
+    restoreModal.value = true
 }
 
-function archiveCategory() {
-    router.delete(route('admin.categories.destroy', selectedCategoryId.value), {
+function restoreCategory() {
+    router.put(route('admin.categories.restore', selectedRestoreId.value), {}, {
         preserveScroll: true,
         onSuccess: () => {
-            showModal.value = false
+            restoreModal.value = false
         }
     })
 }
@@ -60,11 +59,12 @@ function archiveCategory() {
     <div class="w-full space-y-6">
 
         <Head title="| Categories" />
-        <PageHeader title="All Categories">
+        <PageHeader title="All Archived Categories">
             <template #breadcrumbs>
                 <BreadCrumbs :items="[
                     { label: 'Dashboard', href: route('admin.dashboard') },
-                    { label: 'All Categories' }
+                    { label: 'Category', href: route('admin.categories.index') },
+                    { label: 'All Archived Categories' }
                 ]" />
             </template>
         </PageHeader>
@@ -73,17 +73,6 @@ function archiveCategory() {
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <div class="w-full md:max-w-sm">
                     <SearchInput placeholder="Filter Categories" v-model="search" />
-                </div>
-
-                <div class="w-full md:w-auto flex flex-wrap justify-end gap-2">
-                    <BaseButton v-if="categories?.data?.length" :href="route('admin.categories.create')" class="w-full md:w-auto bg-green-600 hover:bg-green-700
-focus:ring-green-500" :icon="Plus">
-                        Add Category
-                    </BaseButton>
-                    <BaseButton :href="route('admin.categories.archive')" class="btn-secondary bg-yellow-500 hover:bg-yellow-600
-focus:ring-yellow-500" :icon="Archive">
-                        Archive
-                    </BaseButton>
                 </div>
             </div>
 
@@ -129,10 +118,9 @@ focus:ring-yellow-500" :icon="Archive">
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
                                         <div class="flex items-center justify-end gap-2">
-                                            <ActionIcon :href="route('admin.categories.edit', category.id)"
-                                                :icon="Edit" />
-
-                                            <ActionIcon :icon="Archive" @click="confirmDelete(category.id)" />
+                                            <ActionIcon :icon="ArchiveRestore"
+                                                class="text-green-600 hover:text-green-800"
+                                                @click="confirmRestore(category.id)" />
                                         </div>
                                     </td>
                                 </tr>
@@ -140,8 +128,6 @@ focus:ring-yellow-500" :icon="Archive">
                                     :key="child.id" class="hover:bg-stone-50 transition-colors">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-stone-700">
                                         <div class="flex items-center gap-4 pl-8">
-                                            <!-- <img :src="child.image ? `/storage/${child.image}` : 'https://placehold.co/200x200'"
-                                                class="w-8 h-8 rounded object-cover" /> -->
                                             <div class="space-y-1 flex-center space-x-5">
                                                 <h2 class="font-medium text-sm text-stone-700">{{ child.name }}</h2>
                                                 <p class="text-xs text-yellow-700 bg-yellow-100 px-1 py-0.5 rounded">
@@ -151,8 +137,12 @@ focus:ring-yellow-500" :icon="Archive">
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
                                         <div class="flex items-center justify-end gap-2">
-                                            <ActionIcon :href="route('admin.categories.edit', child.id)" :icon="Edit" />
-                                            <!-- <ActionIcon :icon="Archive" @click="confirmDelete(child.id)" /> -->
+                                            <ActionIcon :icon="Archive"
+                                                :class="{ 'text-gray-400 cursor-not-allowed': child.parent_id && !child.parent_trashed }"
+                                                @click="child.parent_id && !child.parent_trashed ? null : confirmDelete(child.id)"
+                                                :disabled="child.parent_id && !child.parent_trashed" />
+
+
                                         </div>
                                     </td>
                                 </tr>
@@ -160,23 +150,19 @@ focus:ring-yellow-500" :icon="Archive">
                         </tbody>
                     </table>
 
-                    <!-- Pagination Links  -->
                 </div>
                 <!-- Empty State -->
-                <EmptyState :href="route('admin.categories.create')" v-else :icon="Package" title="No Category found"
-                    :subtitle="subtitle">
-                    Add Category
-                </EmptyState>
+                <EmptyState :href="route('admin.categories.create')" v-else :icon="Package" title="No Category found" />
             </div>
         </div>
         <PaginationLinks :paginator="categories" />
     </div>
-    <Modal :show="showModal">
+    <Modal :show="restoreModal">
         <div class="space-y-4">
-            <h2 class="text-lg font-semibold">Do you want to archive this category?</h2>
+            <h2 class="text-lg font-semibold">Do you want to restore this category?</h2>
             <div class="flex justify-end gap-2">
-                <button @click="showModal = false" class="base-button-clr btn-secondary">Cancel</button>
-                <button @click="archiveCategory" class="base-button-clr btn-danger">Archive</button>
+                <button @click="restoreModal = false" class="base-button-clr btn-secondary">Cancel</button>
+                <button @click="restoreCategory" class="base-button-clr  btn-success ">Restore</button>
             </div>
         </div>
     </Modal>

@@ -5,8 +5,9 @@ import { useForm } from '@inertiajs/vue3'
 import FormInput from '../../../Components/User/FormInput.vue';
 import SubmitButton from '../../../Components/User/SubmitButton.vue';
 import FormSelect from '../../../Components/User/FormSelect.vue';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import CancelButton from '../../../Components/User/CancelButton.vue';
+import Filepond from '../../../Components/UI/Filepond.vue'
 import { route } from 'ziggy-js';
 
 const props = defineProps({
@@ -15,13 +16,19 @@ const props = defineProps({
         default: () => [],
     },
 })
+
 const form = useForm({
     name: '',
     slug: '',
     parent_id: null,
+    image: null,
 });
 
-
+const isUploading = ref(false)
+const setUploading = (status) => {
+    isUploading.value = status
+}
+const isParentCategory = computed(() => form.parent_id === null);
 const parentCategories = computed(() =>
     props.categories
         .filter(category => category.parent_id === null)
@@ -32,10 +39,22 @@ const parentCategories = computed(() =>
 )
 
 const submit = () => {
+
     form.post(route('admin.categories.store'), {
         preserveScroll: true,
-        onError: () => form.reset()
+        onError: () => {
+            form.reset('image');
+        },
     });
+}
+
+
+const handleFileUpload = (fileId) => {
+    form.image = fileId;
+}
+
+const handleFileRemove = () => {
+    form.image = null;
 }
 </script>
 
@@ -60,11 +79,16 @@ const submit = () => {
                     <FormSelect v-model="form.parent_id" :options="parentCategories" name="Parent Category (optional)"
                         :message="form.errors.parent_id" />
                 </div>
-
+                <div class="mt-2" v-if="isParentCategory">
+                    <Filepond :multiple="false" :max-files="1" @uploaded="handleFileUpload" @uploading="setUploading"
+                        @removed="handleFileRemove" />
+                    <p class="text-sm text-gray-500">One image allowed</p>
+                </div>
                 <div class="flex justify-end gap-2 mt-5 items-center">
                     <CancelButton :href="route('admin.categories.index')" />
-                    <SubmitButton type="submit" :processing="form.processing">Create Category
+                    <SubmitButton type="submit" :processing="form.processing || isUploading">Create Category
                     </SubmitButton>
+
                 </div>
             </form>
         </div>

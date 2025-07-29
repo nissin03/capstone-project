@@ -11,7 +11,7 @@ const sidebarOpen = inject('sidebarOpen')
 <template>
     <aside class="sticky top-4 overflow-y-scroll h-[calc(100vh-32px-48px)]">
         <AccountToggle />
-        <Search />
+        <!-- <Search /> -->
         <SidebarMenu :menuItems="menuItems" :sidebar-open="sidebarOpen" />
     </aside>
 </template>

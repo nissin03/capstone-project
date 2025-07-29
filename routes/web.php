@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Request;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UploadController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
@@ -43,7 +44,11 @@ Route::prefix('admin')
     ->name('admin.')
     ->middleware(['auth', 'role:admin'])
     ->group(function () {
+        Route::post('/uploads', [UploadController::class, 'store']);
+        Route::delete('/uploads/revert', [UploadController::class, 'revert']);
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/categories/archive', [CategoryController::class, 'archive'])->name('categories.archive');
+        Route::put('/categories/{id}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
         Route::resource('categories', CategoryController::class);
         Route::get('product', [ProductController::class, 'index'])->name('product');
     });

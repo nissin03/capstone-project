@@ -7,6 +7,8 @@ use App\Models\Category;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 
@@ -15,12 +17,15 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+
         $categories = Category::with('children')
             ->whereNull('parent_id')
+            ->filter($request->only('search'))
             ->latest()
-            ->paginate(5);
+            ->paginate(5)
+            ->withQueryString();
         return Inertia::render('Admin/Category/CategoryListView', [
             'categories' => $categories
         ]);
@@ -41,10 +46,12 @@ class CategoryController extends Controller
      */
     public function store(StoreCategoryRequest $request)
     {
-        Category::create($request->validated());
-        return redirect()->route('admin.categories.index')->with('message', 'Category created successfully!');
+        $validated = $request->validated();
+        Category::create($validated);
+        return redirect()
+            ->route('admin.categories.index')
+            ->with('message', 'Category created successfully!');
     }
-
     /**
      * Display the specified resource.
      */
@@ -82,7 +89,43 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
+        if ($category->parent_id && !$category->parent()->withTrashed()->first()->trashed()) {
+            return back()->with('error', 'Cannot archive subcategory while parent is still active.');
+        }
+        $category->children()->delete();
         $category->delete();
         return back()->with('message', 'Category archived successfully!');
+    }
+
+    /**
+     * Display a list of archives.
+     */
+    public function archive(Request $request)
+    {
+        $categories  = Category::onlyTrashed()->with('children')
+            ->filter($request->only('search'))
+            ->with('children')
+            ->whereNull('parent_id')
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return Inertia::render('Admin/Category/CategoryArchiveView', [
+            'categories' => $categories,
+        ]);
+    }
+
+    public function restore(Request $request)
+    {
+        $category = Category::onlyTrashed()->findOrFail($request->id);
+        if ($category->parent_id) {
+            $parent = Category::withTrashed()->find($category->parent_id);
+
+            if ($parent && $parent->trashed()) {
+                return back()->with('error', 'Cannot restore subcategory while its parent is still archived.');
+            }
+        }
+        $category->restore();
+        return redirect()->back()->with('message', 'Category restored successfully.');
     }
 }

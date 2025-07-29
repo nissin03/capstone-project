@@ -42,6 +42,9 @@ svg {
 @utility btn-danger {
     @apply bg-red-700 text-white hover:bg-red-800 transition w-auto;
 }
+@utility btn-success {
+    @apply bg-green-700 text-white hover:bg-green-800 transition w-auto;
+}
 
 @utility btn-secondary {
     @apply text-stone-700 border border-stone-300 bg-transparent hover:bg-stone-100 transition w-auto;

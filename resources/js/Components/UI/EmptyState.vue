@@ -7,7 +7,8 @@
         <p class="text-stone-500 mb-4">
             {{ subtitle }}
         </p>
-        <BaseButton v-if="$slots.default" :icon="Plus">
+        <BaseButton v-if="$slots.default" :href="href" :icon="Plus" class="w-full md:w-auto bg-green-600 hover:bg-green-700
+focus:ring-green-500">
             <slot />
         </BaseButton>
     </div>
@@ -34,5 +35,6 @@ defineProps({
         type: String,
         default: 'There is currently no content to show.',
     },
+    href: String,
 })
 </script>

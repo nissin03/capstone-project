@@ -6,18 +6,20 @@ const props = defineProps({
         type: String,
         default: 'button'
     },
+    class: {
+        type: [String, Array, Object],
+        default: ''
+    }
 })
 const emits = defineEmits(['click'])
 </script>
 <template>
 
-    <Link v-if="href" :href="href"
-        class="actions-style  hover:text-green-600 hover:bg-green-50 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1">
-    <component :is="icon" class="size-4" />
+    <Link v-if="href" :href="href" class="actions-style  transition-colors">
+    <component :is="icon" class="size-4" :class="props.class" />
     </Link>
 
-    <button v-else :type="type" @click="$emit('click')"
-        class="actions-style cursor-pointer hover:text-red-600 hover:bg-red-50 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1">
-        <component :is="icon" class="size-4" />
+    <button v-else :type="type" @click="$emit('click')" class="actions-style cursor-pointer  transition-colors">
+        <component :is="icon" class="size-4" :class="props.class" />
     </button>
 </template>

@@ -38,6 +38,7 @@ class UpdateCategoryRequest extends FormRequest
                 Rule::unique('categories', 'slug')->ignore($categoryId),
             ],
             'parent_id' => 'nullable|exists:categories,id',
+            'image' => ['nullable', 'string', 'max:255'],
         ];
     }
 
@@ -53,8 +54,11 @@ class UpdateCategoryRequest extends FormRequest
     {
         if (!$this->filled('slug') && $this->filled('name')) {
             $this->merge([
-                'slug' => Str::slug($this->input('name'))
+                'slug' => Str::slug($this->input('name')),
             ]);
+        }
+        if ($this->input('image') === '') {
+            $this->merge(['image' => null]);
         }
     }
 }
